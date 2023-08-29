@@ -23,4 +23,4 @@ ARGV.each do|arg|
   end
 end
 
-db.list_all
+#db.list_all
