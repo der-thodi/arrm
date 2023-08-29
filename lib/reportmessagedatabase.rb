@@ -4,8 +4,9 @@ require './lib/reportmessage'
 
 class ReportMessageDatabase
 
-  @@table_dml = 'create table reportmessages (
+  TABLE_DML = 'create table reportmessages (
     id text not null primary key,
+    recipient text,
     report_timestamp integer,
     message_timestamp integer,
     subreddit text,
@@ -16,7 +17,7 @@ class ReportMessageDatabase
     user_action text,
     content_action text
   );'
-  @@table_dml_hash = Digest::SHA256.hexdigest(@@table_dml)
+  TABLE_DML_HASH = Digest::SHA256.hexdigest(TABLE_DML)
 
   def initialize()
     @db = SQLite3::Database.new 'reportmessages.sqlite3'
@@ -41,22 +42,22 @@ class ReportMessageDatabase
     statement.close
 
     puts " Version in database: #{version_in_database}"
-    puts " Current version:     #{@@table_dml_hash}"
-    if version_in_database == nil or version_in_database != @@table_dml_hash
+    puts " Current version:     #{TABLE_DML_HASH}"
+    if version_in_database == nil or version_in_database != TABLE_DML_HASH
       puts " Updating table definition"
       statement = @db.prepare 'delete from version'
       statement.execute
       statement.close
 
       statement = @db.prepare 'insert into version (version) values (?)'
-      statement.bind_params @@table_dml_hash
+      statement.bind_params TABLE_DML_HASH
       statement.execute
       statement.close
 
       rows = @db.execute <<-SQLDROP
         drop table if exists reportmessages;
       SQLDROP
-      rows = @db.execute @@table_dml
+      rows = @db.execute TABLE_DML
     else
       puts " No need to update"
     end
@@ -64,13 +65,14 @@ class ReportMessageDatabase
 
 
   def save(report_message)
-    puts "Saving #{report_message.id} / #{report_message.reported_account}"
+    #puts "Saving #{report_message.id} / #{report_message.reported_account}"
 
     statement = @db.prepare 'insert or ignore
-                             into reportmessages (id, reported_account)
-                             values (?, ?)'
+                             into reportmessages (id, reported_account, recipient)
+                             values (?, ?, ?)'
     statement.bind_params report_message.id,
-                          report_message.reported_account
+                          report_message.reported_account,
+                          report_message.recipient
 
     rows = statement.execute
     statement.close
