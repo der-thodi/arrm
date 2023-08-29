@@ -2,12 +2,12 @@
 
 class ReportMessage
 
-  attr_reader :id
+  attr_reader :id, :recipient
 
   def self.report_message?(message)
     message['subject'] == 'We Have Reviewed Your Report'
   end
-
+  
 
   def first_report?
     if @first_report == nil
@@ -111,6 +111,7 @@ class ReportMessage
   def initialize(message_fields)
     @id = message_fields['id']
     @body = message_fields['body']
+    @recipient = message_fields['to']
   end
 
 
