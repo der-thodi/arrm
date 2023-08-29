@@ -1,0 +1,2 @@
+activerecord>=5.2
+ruby>=2.3
