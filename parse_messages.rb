@@ -1,8 +1,8 @@
 #!/usr/bin/env ruby
 
 require 'csv'
-require './reportmessage'
-require './reportmessagedatabase'
+require './lib/reportmessage'
+require './lib/reportmessagedatabase'
 
 #Submitted on: 07/24/2023 at 09:05 PM UTC      
 
@@ -14,7 +14,9 @@ ARGV.each do|arg|
 
   messages.each do |m|
     if (ReportMessage.report_message?(m))
-      db.save(ReportMessage.new(m))
+      rm = ReportMessage.new(m)
+      puts rm.to_s
+      db.save(rm)
     else
       #puts " Ignoring message #{i}"
     end

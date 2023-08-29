@@ -30,6 +30,7 @@ class ReportMessage
       end
 
       @reported_account.gsub!(/\\/, '')
+      @reported_account.strip!
     end
 
     @reported_account
@@ -47,6 +48,8 @@ class ReportMessage
       ret = 'no'
     end
   
+    ret.strip!
+
     return ret
   end
   
@@ -59,6 +62,8 @@ class ReportMessage
       ret = match[1]
     end
   
+    ret.strip!
+
     return ret
   end
   
@@ -71,6 +76,8 @@ class ReportMessage
       ret = match[1]
     end
   
+    ret.strip!
+
     return ret
   end
   
@@ -82,6 +89,8 @@ class ReportMessage
       ret = match[2]
     end
   
+    ret.strip!
+
     return ret
   end
   
@@ -93,46 +102,20 @@ class ReportMessage
       ret = match[1]
     end
   
+    ret.strip!
+
     return ret
   end
-
-  # def parse_message_fields(message_fields)
-  #   m = message_fields
-  #
-  #   @date = m['date']
-  #   puts " Looking at message ID #{@id}"
-  #  
-  #   @body = m['body']
-  #
-  #   @is_violation = is_violation?()
-  #   puts "  Is violation? #{@is_violation}"
-  #
-  #   @violation_type = get_violation_type()
-  #   puts "  Violation type? #{@violation_type}"
-  #
-  #   @subreddit = get_subreddit()
-  #   puts "  Subreddit? #{@subreddit}"
-  #  
-  #   @is_first_report = is_first_report?()
-  #   puts "  First report? #{@is_first_report}"
-  #
-  #   @reported_account = get_reported_account()
-  #   puts "  Reported account? #{@reported_account}"
-  #
-  #   @user_action = get_user_action()
-  #   puts "  User action? #{@user_action}"
-  #
-  #   @content_action = get_content_action()
-  #   puts "  Content action? #{@content_action}"
-  # end
 
 
   def initialize(message_fields)
     @id = message_fields['id']
     @body = message_fields['body']
-    #parse_message_fields(message_fields)
   end
 
 
-  #private :parse_message_fields
+  def to_s
+    "User #{reported_account()} was #{user_action()} because of #{violation_type()} in r/#{subreddit()}"
+  end
+
 end

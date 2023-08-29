@@ -1,6 +1,6 @@
 require 'sqlite3'
 require 'digest'
-require './reportmessage'
+require './lib/reportmessage'
 
 class ReportMessageDatabase
 
@@ -73,14 +73,7 @@ class ReportMessageDatabase
                           report_message.reported_account
 
     rows = statement.execute
-
-    #rows = @db.execute <<-SQLINSERT
-    #  insert or ignore into reportmessages (id, reported_account)
-    #  values (\'#{reportmessage.id}\', \'#{reportmessage.reported_account}\');
-    #  
-    #  -- update
-    #SQLINSERT
-
+    statement.close
   end
 
 
@@ -91,6 +84,8 @@ class ReportMessageDatabase
     while (row = rows.next) do
       puts row.join "\s"
     end
+
+    statement.close
   end
 
   private :create_tables
