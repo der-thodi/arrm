@@ -10,9 +10,9 @@ class ReportMessageDatabase
     report_timestamp integer,
     message_timestamp integer,
     subreddit text,
-    is_violation integer,
+    violation integer,
     violation_type text,
-    is_first_report integer,
+    first_report integer,
     reported_account text,
     user_action text,
     content_action text
@@ -65,14 +65,31 @@ class ReportMessageDatabase
 
 
   def save(report_message)
-    #puts "Saving #{report_message.id} / #{report_message.reported_account}"
-
+    # make sure the entry exists
     statement = @db.prepare 'insert or ignore
-                             into reportmessages (id, reported_account, recipient)
-                             values (?, ?, ?)'
-    statement.bind_params report_message.id,
-                          report_message.reported_account,
-                          report_message.recipient
+                             into reportmessages (id)
+                             values (?)'
+    statement.bind_params report_message.id
+    rows = statement.execute
+
+    # now fill in the values
+    statement = @db.prepare 'update reportmessages
+                             set reported_account = ?,
+                                 recipient = ?,
+                                 subreddit = ?,
+                                 violation = ?,
+                                 violation_type = ?,
+                                 user_action = ?,
+                                 content_action = ?
+                             where id = ?'
+    statement.bind_params report_message.reported_account,
+                          report_message.recipient,
+                          report_message.subreddit,
+                          report_message.violation?,
+                          report_message.violation_type,
+                          report_message.user_action,
+                          report_message.content_action,
+                          report_message.id
 
     rows = statement.execute
     statement.close
