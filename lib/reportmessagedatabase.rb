@@ -67,7 +67,7 @@ class ReportMessageDatabase
   def save(report_message)
     # make sure the entry exists
     statement = @db.prepare 'insert or ignore
-                             into reportmessages (id)
+                               into reportmessages (id)
                              values (?)'
     statement.bind_params report_message.id
     rows = statement.execute
@@ -107,5 +107,70 @@ class ReportMessageDatabase
     statement.close
   end
 
+
+  def print_subreddit_stats
+    statement = @db.prepare 'select count(*) from (
+                               select distinct subreddit
+                                 from reportmessages
+                             )' 
+
+    row = statement.execute
+    puts "Subreddits: #{row.next[0]}"
+    statement.close
+
+    statement = @db.prepare 'select subreddit, count(*)
+                               from reportmessages
+                              group by subreddit
+                              order by 2 desc'
+    rows = statement.execute
+    puts "Subreddit breakdown:"
+    while (row = rows.next)
+      puts " '#{row[0]}': #{row[1]}"
+    end
+    statement.close
+  end
+
+
+  def print_ban_stats
+    statement = @db.prepare 'select count(*) from (
+                               select distinct reported_account
+                                 from reportmessages
+                                where user_action like \'%permanent%\'
+                             )' 
+
+    row = statement.execute
+    puts "Permanent bans: #{row.next[0]}"
+    statement.close
+
+    statement = @db.prepare 'select count(*) from (
+                               select distinct reported_account
+                                 from reportmessages
+                                where user_action like \'%tempo%\'
+                             )' 
+
+    row = statement.execute
+    puts "Temporary bans: #{row.next[0]}"
+    statement.close
+  end
+
+
+  def print_violation_type_stats
+    statement = @db.prepare 'select violation_type, count(*)
+                               from reportmessages
+                              group by violation_type
+                              order by 2 desc'
+
+    rows = statement.execute
+    puts "Violation breakdown:"
+    while (row = rows.next)
+      puts " '#{row[0]}': #{row[1]}"
+    end
+    statement.close
+  end
+
+
+  def print_removal_stats
+  end
+  
   private :create_tables
 end
