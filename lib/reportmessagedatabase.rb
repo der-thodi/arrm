@@ -38,7 +38,12 @@ class ReportMessageDatabase
     # Fetch current version from database
     statement = @db.prepare 'select version from version'
     rows = statement.execute
-    version_in_database = rows.next[0]
+    row = rows.next
+    if row == nil
+      version_in_database = 0
+    else
+      version_in_database = row[0]
+    end
     statement.close
 
     puts " Version in database: #{version_in_database}"
@@ -161,7 +166,6 @@ class ReportMessageDatabase
                                from reportmessages
                               group by violation_type
                               order by 2 desc'
-
     rows = statement.execute
     puts "Violation breakdown:"
     while (row = rows.next)
@@ -172,6 +176,11 @@ class ReportMessageDatabase
 
 
   def print_removal_stats
+    statement = @db.prepare 'select count(*)
+                               from reportmessages
+                              where content_action like \'%removed%\''
+    rows = statement.execute
+    puts "Posts removed: #{rows.next[0]}"
   end
   
   private :create_tables
