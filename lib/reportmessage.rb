@@ -1,8 +1,10 @@
+require 'date'
+
 # id,permalink,thread_id,date,ip,from,to,subject,body
 
 class ReportMessage
 
-  attr_reader :id, :recipient
+  attr_reader :id, :recipient, :message_timestamp
 
   def self.report_message?(message)
     message['subject'] == 'We Have Reviewed Your Report'
@@ -36,7 +38,64 @@ class ReportMessage
     @reported_account
   end
   
+
+  def report_timestamp
+    if @report_timestamp == nil
+      if (match = /Submitted on: (.+)/.match(@body))
+        @report_timestamp = parse_timestamp(match[1])
+      end
+    end
+
+    @report_timestamp
+  end
+
+  def parse_timestamp(date_string)
+    ret = 0
+
+    # 2023-04-01 00:26:28 UTC
+    if (/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} .+/.match(date_string))
+      date = DateTime.parse(date_string)
+      ret = date.strftime('%s')
+    # 03/22/2023 at 08:01 PM UTC
+    elsif (match = /(\d{2})\/(\d{2})\/(\d{4}) at (\d{2}):(\d{2}) (.{2}) (.+)/.match(date_string))
+      month = match[1]
+      day = match[2]
+      year = match[3]
+      hour = am_pm_to_24(match[4], match[6])
+      minute = match[5]
+      second = '00'
+      tz = match[7]
+
+      date_string = "#{year}-#{month}-#{day} #{hour}:#{minute}:#{second} #{tz}"
+
+      date = DateTime.parse(date_string)
+      ret = date.strftime('%s')      
+    end
+
+    return ret
+  end
   
+
+  def am_pm_to_24(hour, ampm)
+    hour_i = hour.to_i
+
+    if (hour_i >= 1 and hour_i <= 11)
+      if ampm == 'AM'
+        ret = hour_i.to_s
+      else
+        ret = (hour_i + 12).to_s
+      end
+    else
+      # hour_i == 12
+      if ampm == 'AM'
+        ret = '00'
+      else
+        ret = '12'
+      end
+    end
+  end
+
+
   def violation?
     if @violation == nil
       @violation = 'no'
@@ -55,16 +114,16 @@ class ReportMessage
   
   
   def subreddit
-    ret = 'unknown'
-  
-    # Link to reported content: https://www.reddit.com/r/wichsbros_DE69x/comments/159etsc
-    if (match = /Link to reported content:.*\/r\/([^\/]+)\//.match(@body))
-      ret = match[1]
+    if @subreddit == nil
+      @subreddit = 'unknown'
+      # Link to reported content: https://www.reddit.com/r/wichsbros_DE69x/comments/159etsc
+      if (match = /Link to reported content:.*\/r\/([^\/]+)\//.match(@body))
+        @subreddit = match[1]
+        @subreddit.strip!
+      end
     end
-  
-    ret.strip!
 
-    return ret
+    @subreddit
   end
   
   
@@ -108,15 +167,21 @@ class ReportMessage
   end
 
 
+  def timestamp_as_date(timestamp)
+    #puts "Converting '#{timestamp}'"
+    Time.at(timestamp.to_i).to_datetime.strftime('%F %T')
+  end
+
   def initialize(message_fields)
     @id = message_fields['id']
     @body = message_fields['body']
     @recipient = message_fields['to']
+    @message_timestamp = parse_timestamp(message_fields['date'])
   end
 
 
   def to_s
-    "User #{reported_account()} was #{user_action()} because of #{violation_type()} in r/#{subreddit()}"
+    "User #{reported_account()} was #{user_action()} because of #{violation_type()} in r/#{subreddit()} (#{timestamp_as_date(report_timestamp())} - #{timestamp_as_date(message_timestamp())})"
   end
 
 end

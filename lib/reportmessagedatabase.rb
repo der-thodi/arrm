@@ -80,7 +80,9 @@ class ReportMessageDatabase
                                  violation = ?,
                                  violation_type = ?,
                                  user_action = ?,
-                                 content_action = ?
+                                 content_action = ?,
+                                 message_timestamp = ?,
+                                 report_timestamp =?
                              where id = ?'
     statement.bind_params report_message.reported_account,
                           report_message.recipient,
@@ -89,8 +91,9 @@ class ReportMessageDatabase
                           report_message.violation_type,
                           report_message.user_action,
                           report_message.content_action,
+                          report_message.message_timestamp,
+                          report_message.report_timestamp,
                           report_message.id
-
     rows = statement.execute
     statement.close
   end
@@ -103,7 +106,6 @@ class ReportMessageDatabase
     while (row = rows.next) do
       puts row.join "\s"
     end
-
     statement.close
   end
 
