@@ -38,19 +38,19 @@ class ReportMessage
   
   
   def violation?
-    ret = 'no'
-  
-    if (@body.include?("violated"))
-      ret = 'yes'
-    elsif (@body.include?("violates"))
-      ret = 'yes'
-    elsif (@body.include?("t violate "))
-      ret = 'no'
+    if @violation == nil
+      @violation = 'no'
+      if (@body.include?('violated'))
+        ret = 'yes'
+      elsif (@body.include?('violates'))
+        ret = 'yes'
+      elsif (@body.include?('t violate '))
+        ret = 'no'
+      end
+      @violation.strip!      
     end
-  
-    ret.strip!
 
-    return ret
+    @violation
   end
   
   

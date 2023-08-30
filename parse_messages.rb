@@ -7,7 +7,7 @@ require './lib/reportmessagedatabase'
 #Submitted on: 07/24/2023 at 09:05 PM UTC      
 
 db = ReportMessageDatabase.new()
-
+i = 1
 ARGV.each do|arg|
   puts "Reading CSV: #{arg}"
   messages = CSV.read(arg, headers: true)
@@ -15,8 +15,9 @@ ARGV.each do|arg|
   messages.each do |m|
     if (ReportMessage.report_message?(m))
       rm = ReportMessage.new(m)
-      puts rm.to_s
+      puts "#{i}: #{rm.to_s}"
       db.save(rm)
+      i += 1
     else
       #puts " Ignoring message #{i}"
     end
