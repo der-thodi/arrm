@@ -25,3 +25,7 @@ ARGV.each do|arg|
 end
 
 #db.list_all
+db.print_ban_stats
+db.print_subreddit_stats
+db.print_violation_type_stats
+db.print_removal_stats
