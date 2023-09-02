@@ -29,3 +29,4 @@ db.print_ban_stats
 db.print_subreddit_stats
 db.print_violation_type_stats
 db.print_removal_stats
+db.print_time_stats

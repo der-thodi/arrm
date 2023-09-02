@@ -181,7 +181,34 @@ class ReportMessageDatabase
                               where content_action like \'%removed%\''
     rows = statement.execute
     puts "Posts removed: #{rows.next[0]}"
+    statement.close
   end
   
+
+  def print_time_stats
+    statement = @db.prepare 'select max(message_timestamp - report_timestamp)
+                               from reportmessages'
+    rows = statement.execute
+    row = rows.next
+    puts "Longest reaction time: #{ReportMessage.format_processing_time(row[0])}"
+    statement.close
+
+    statement = @db.prepare 'select min(message_timestamp - report_timestamp)
+                               from reportmessages'
+    rows = statement.execute
+    row = rows.next
+    puts "Shortest reaction time: #{ReportMessage.format_processing_time(row[0])}"
+    statement.close
+
+    statement = @db.prepare 'select avg(message_timestamp - report_timestamp)
+                               from reportmessages'
+    rows = statement.execute
+    row = rows.next
+    puts "Average reaction time: #{ReportMessage.format_processing_time(row[0])}"
+    statement.close
+  end
+
+
+
   private :create_tables
 end

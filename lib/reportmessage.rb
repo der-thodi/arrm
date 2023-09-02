@@ -172,6 +172,27 @@ class ReportMessage
     Time.at(timestamp.to_i).to_datetime.strftime('%F %T')
   end
 
+
+  def self.format_processing_time(seconds)
+    # https://stackoverflow.com/questions/2310197/how-to-convert-270921sec-into-days-hours-minutes-sec-ruby
+    mm, ss = seconds.divmod(60)
+    hh, mm = mm.divmod(60)
+    dd, hh = hh.divmod(24)
+        
+    "#{dd} days, #{hh} hours, #{mm} minutes and #{ss} seconds"
+  end
+
+
+  def get_processing_time()
+    start_timestamp = report_timestamp()
+    end_timestamp = message_timestamp()
+    
+    seconds = end_timestamp - start_timestamp
+    
+    format_processing_time(seconds)
+  end
+
+
   def initialize(message_fields)
     @id = message_fields['id']
     @body = message_fields['body']
