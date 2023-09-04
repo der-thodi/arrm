@@ -41,13 +41,14 @@ class ReportMessage
 
   def report_timestamp
     if @report_timestamp == nil
-      if (match = /Submitted on: (.+)/.match(@body))
+      if (match = /Submitted on: (\d.+)/.match(@body))
         @report_timestamp = parse_timestamp(match[1])
       end
     end
 
     @report_timestamp
   end
+
 
   def parse_timestamp(date_string)
     ret = 0
@@ -69,7 +70,7 @@ class ReportMessage
       date_string = "#{year}-#{month}-#{day} #{hour}:#{minute}:#{second} #{tz}"
 
       date = DateTime.parse(date_string)
-      ret = date.strftime('%s')      
+      ret = date.strftime('%s')   
     end
 
     return ret
@@ -100,11 +101,11 @@ class ReportMessage
     if @violation == nil
       @violation = 'no'
       if (@body.include?('violated'))
-        ret = 'yes'
+        @violation = 'yes'
       elsif (@body.include?('violates'))
-        ret = 'yes'
+        @violation = 'yes'
       elsif (@body.include?('t violate '))
-        ret = 'no'
+        @violation = 'no'
       end
       @violation.strip!      
     end
@@ -167,7 +168,7 @@ class ReportMessage
   end
 
 
-  def timestamp_as_date(timestamp)
+  def self.timestamp_as_date(timestamp)
     #puts "Converting '#{timestamp}'"
     Time.at(timestamp.to_i).to_datetime.strftime('%F %T')
   end
@@ -179,7 +180,7 @@ class ReportMessage
     hh, mm = mm.divmod(60)
     dd, hh = hh.divmod(24)
         
-    "#{dd} days, #{hh} hours, #{mm} minutes and #{ss} seconds"
+    "#{dd} days, #{hh} hours, #{mm} minutes and #{ss.round} seconds"
   end
 
 

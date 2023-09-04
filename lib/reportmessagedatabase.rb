@@ -10,20 +10,22 @@ class ReportMessageDatabase
     report_timestamp integer,
     message_timestamp integer,
     subreddit text,
-    violation integer,
+    violation text,
     violation_type text,
-    first_report integer,
+    first_report text,
     reported_account text,
     user_action text,
     content_action text
   );'
   TABLE_DML_HASH = Digest::SHA256.hexdigest(TABLE_DML)
 
+
   def initialize()
     @db = SQLite3::Database.new 'reportmessages.sqlite3'
 
     create_tables()
   end
+
 
   def create_tables()
     puts "Creating tables as needed"
@@ -87,7 +89,8 @@ class ReportMessageDatabase
                                  user_action = ?,
                                  content_action = ?,
                                  message_timestamp = ?,
-                                 report_timestamp =?
+                                 report_timestamp = ?,
+                                 first_report = ?
                              where id = ?'
     statement.bind_params report_message.reported_account,
                           report_message.recipient,
@@ -98,6 +101,7 @@ class ReportMessageDatabase
                           report_message.content_action,
                           report_message.message_timestamp,
                           report_message.report_timestamp,
+                          report_message.first_report?,
                           report_message.id
     rows = statement.execute
     statement.close
@@ -115,7 +119,7 @@ class ReportMessageDatabase
   end
 
 
-  def print_subreddit_stats
+  def print_subreddit_stats(rows_in_subreddit_breakdown = -1)
     statement = @db.prepare 'select count(*) from (
                                select distinct subreddit
                                  from reportmessages
@@ -125,16 +129,20 @@ class ReportMessageDatabase
     puts "Subreddits: #{row.next[0]}"
     statement.close
 
-    statement = @db.prepare 'select subreddit, count(*)
-                               from reportmessages
-                              group by subreddit
-                              order by 2 desc'
-    rows = statement.execute
-    puts "Subreddit breakdown:"
-    while (row = rows.next)
-      puts " '#{row[0]}': #{row[1]}"
+    if rows_in_subreddit_breakdown != 0
+      statement = @db.prepare 'select subreddit, count(*)
+                                from reportmessages
+                                group by subreddit
+                                order by 2 desc
+                                limit ?'
+      statement.bind_params rows_in_subreddit_breakdown
+      rows = statement.execute
+      puts "Subreddit breakdown: (Top #{rows_in_subreddit_breakdown})"
+      while (row = rows.next)
+        puts " '#{row[0]}': #{row[1]}"
+      end
+      statement.close
     end
-    statement.close
   end
 
 
@@ -186,11 +194,25 @@ class ReportMessageDatabase
   
 
   def print_time_stats
+    statement = @db.prepare 'select min(message_timestamp)
+                               from reportmessages'
+    rows = statement.execute
+    row = rows.next
+    puts "Oldest message: #{ReportMessage.timestamp_as_date(row[0])}"
+    statement.close
+
+    statement = @db.prepare 'select max(message_timestamp)
+                               from reportmessages'
+    rows = statement.execute
+    row = rows.next
+    puts "Newest message: #{ReportMessage.timestamp_as_date(row[0])}"
+    statement.close
+
     statement = @db.prepare 'select max(message_timestamp - report_timestamp)
                                from reportmessages'
     rows = statement.execute
     row = rows.next
-    puts "Longest reaction time: #{ReportMessage.format_processing_time(row[0])}"
+    puts "Longest reaction time:  #{ReportMessage.format_processing_time(row[0])}"
     statement.close
 
     statement = @db.prepare 'select min(message_timestamp - report_timestamp)
@@ -204,11 +226,30 @@ class ReportMessageDatabase
                                from reportmessages'
     rows = statement.execute
     row = rows.next
-    puts "Average reaction time: #{ReportMessage.format_processing_time(row[0])}"
+    puts "Average reaction time:  #{ReportMessage.format_processing_time(row[0])}"
     statement.close
   end
 
 
+  def print_violation_stats
+    statement = @db.prepare 'select count(*)
+                               from reportmessages
+                              where violation = \'yes\''
+    rows = statement.execute
+    violations = rows.next[0]
+    puts "Confirmed violations: #{violations}"
+    statement.close
+
+    statement = @db.prepare 'select count(*)
+                               from reportmessages
+                              where violation = \'no\''
+    rows = statement.execute
+    no_violations = rows.next[0]
+    puts "No violation: #{no_violations}"
+    statement.close
+
+    puts "Successful: #{violations / ((violations + no_violations) / 100)}%"
+  end
 
   private :create_tables
 end
