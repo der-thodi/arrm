@@ -32,6 +32,7 @@ end
 db.print_violation_stats
 db.print_violation_type_stats
 db.print_ban_stats
-db.print_subreddit_stats(10)
+db.print_subreddit_stats()
 db.print_removal_stats
+db.print_username_stats
 db.print_time_stats
