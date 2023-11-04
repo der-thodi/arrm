@@ -29,10 +29,11 @@ ARGV.each do|arg|
 end
 
 #db.list_all
+db.print_reported_content_type_stats
 db.print_violation_stats
 db.print_violation_type_stats
 db.print_ban_stats
-db.print_subreddit_stats()
+db.print_subreddit_stats(10)
 db.print_removal_stats
-db.print_username_stats
+#db.print_username_stats
 db.print_time_stats
