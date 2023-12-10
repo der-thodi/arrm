@@ -143,7 +143,11 @@ class ReportMessageDatabase
                                 limit ?'
       statement.bind_params rows_in_subreddit_breakdown
       rows = statement.execute
-      puts "Subreddit breakdown: (Top #{rows_in_subreddit_breakdown})"
+      if (rows_in_subreddit_breakdown > 0)
+        puts "Subreddit breakdown: (Top #{rows_in_subreddit_breakdown})"
+      else
+        puts "Subreddit breakdown:"
+      end
       while (row = rows.next)
         puts " '#{row[0]}': #{row[1]}"
       end
@@ -294,6 +298,39 @@ class ReportMessageDatabase
     end
     puts
     statement.close
+  end
+
+
+  def print_subreddit_css
+    
+  end
+
+  def print_subreddit_details
+    subreddits = Array.new
+
+    statement = @db.prepare 'select distinct subreddit
+                               from reportmessages'
+    rows = statement.execute
+    while (row = rows.next)
+      subreddits << row[0]
+    end
+    statement.close
+
+    subreddits.each { |sub|
+      statement = @db.prepare 'select distinct reported_account
+                                 from reportmessages
+                                where subreddit = ?
+                                  and violation = \'yes\''
+      statement.bind_params sub
+      rows = statement.execute
+      puts "Sub: #{sub}"
+      while (row = rows.next)
+        print "#{row[0]} "
+      end
+      puts
+      statement.close
+    }
+
   end
 
   private :create_tables
