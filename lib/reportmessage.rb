@@ -7,7 +7,8 @@ class ReportMessage
   attr_reader :id, :recipient, :message_timestamp
 
   def self.report_message?(message)
-    message['subject'] == 'We Have Reviewed Your Report'
+    (message['subject'] == 'We Have Reviewed Your Report') and
+    (message['body'].include?('submitting a report'))
   end
   
 
