@@ -1,40 +1,104 @@
 #!/usr/bin/env ruby
 
 require 'csv'
+require 'find'
+require 'getoptlong'
 require './lib/reportmessage'
 require './lib/reportmessagedatabase'
 
 #Submitted on: 07/24/2023 at 09:05 PM UTC      
 
-db = ReportMessageDatabase.new()
-i = 1
-ARGV.each do|arg|
-  puts "Reading CSV: #{arg}"
-  messages = CSV.read(arg, headers: true)
+opts = GetoptLong.new(
+  [ '--input-directory', '-i', GetoptLong::REQUIRED_ARGUMENT ],
+  [ '--privacy', '-p', GetoptLong::REQUIRED_ARGUMENT],
+  [ '--run-reports', '-r', GetoptLong::REQUIRED_ARGUMENT],
+  [ '--output-file', '-o', GetoptLong::REQUIRED_ARGUMENT]
+)
 
-  messages.each do |m|
-    if (ReportMessage.report_message?(m))
-      rm = ReportMessage.new(m)
-      #puts "#{i}: #{rm.to_s}"
-      db.save(rm)
-      i += 1
-      if i % 100 == 0
-        print "...#{i}"
-      end
+begin
+  options = {}
+  #
+  # privacy:
+  #   0: none
+  #   1: privacy for reporter accounts
+  #   2: privacy for reported accounts
+  #
+  options[:privacy] = 0
+
+  options[:run_reports] = :true
+
+  options[:output_file] = ""
+
+  opts.each do |opt, arg|
+    case opt
+    when '--input-directory'
+      options[:input_directory] = arg
+    when '--privacy'
+      options[:privacy] = arg.to_i
+    when '--run-reports'
+      options[:run_reports] = (arg =~ /^no$/ or arg =~ /^false$/ or arg =~ /^0$/) ? :false : :true
+    when '--output-file'
+      options[:output_file] = arg
     else
-      #puts " Ignoring message #{i}"
+      puts "Unknown option #{opt}"
+      exit 1
     end
   end
-  puts "...#{i}"
+
+rescue GetoptLong::Error => e
+  puts e.message
+  exit 1
 end
 
-#db.list_all
-db.print_reported_content_type_stats
-db.print_violation_stats
-db.print_violation_type_stats
-db.print_ban_stats
-#db.print_subreddit_stats(20)
-#db.print_removal_stats
-#db.print_username_stats
-db.print_time_stats
-#db.print_subreddit_details
+puts options
+
+db = ReportMessageDatabase.new()
+i = 1
+if (options.key?(:input_directory) and options[:input_directory] != '') 
+  Find.find(options[:input_directory]) do |path|
+    if (FileTest.file?(path) and path =~ /messages.csv/)
+      if (options[:privacy] > 0)
+        puts "Reading CSV"
+      else
+        puts "Reading CSV: #{path}"
+      end
+      messages = CSV.read(path, headers: true)
+
+      messages.each do |m|
+        if (ReportMessage.report_message?(m))
+          rm = ReportMessage.new(m)
+          #puts "#{i}: #{rm.to_s}"
+          db.save(rm)
+          i += 1
+          if i % 100 == 0
+            print "...#{i}"
+          end
+        else
+          #puts " Ignoring message #{i}"
+        end
+      end
+      puts "...#{i}"
+    end
+  end
+else
+  puts "No input files"
+end
+
+if (options[:run_reports] == :true)
+  if (options[:output_file] != "")
+    db.run_file_report(privacy: options[:privacy], output_file: options[:output_file])
+  else
+    # basic
+    #db.list_all
+    db.print_reported_content_type_stats
+    db.print_violation_stats
+    db.print_violation_type_stats
+    db.print_ban_stats
+    db.print_subreddit_stats(10)
+    #db.print_removal_stats
+    #db.print_username_stats
+    db.print_time_stats
+    #db.print_subreddit_details
+    db.print_reporter_stats
+  end
+end
