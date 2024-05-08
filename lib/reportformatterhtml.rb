@@ -7,10 +7,13 @@ class ReportFormatterHTML
   end
 
   def print_global_header
-    @output_file.puts(
-"<html>
-  <head></head>
-  <body>")
+    @output_file.puts("<!DOCTYPE html>")
+    @output_file.puts("<html lang=\"en\">")
+    @output_file.puts("<head>")
+    @output_file.puts("  <title>Reddit Report Analyzer</title>")
+    @output_file.puts("  <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">")
+    @output_file.puts("</head>")
+    @output_file.puts("<body>")
   end
 
   def print_global_footer
@@ -64,29 +67,29 @@ class ReportFormatterHTML
     @output_file.puts("  <li>Confirmed violations: #{violations} (#{get_percentage(part: violations, total: violations + no_violations)}%)</li>")
     @output_file.puts("  <li>Permanent bans: #{permanent_bans.length}</li>")
     if (@privacy < 2 and permanent_bans.length > 0)
-      @output_file.puts("  <ul>")
+      @output_file.puts("  <li><ul>")
       permanent_bans.each do |ban|
         @output_file.puts("    <li>#{ban}</li>")
       end
-      @output_file.puts("  </ul>")
+      @output_file.puts("  </ul></li>")
     end
 
     @output_file.puts("  <li>Temporary bans: #{temporary_bans.length}</li>")
     if (@privacy < 2 and temporary_bans.length > 0)
-      @output_file.puts("  <ul>")
+      @output_file.puts("  <li><ul>")
       temporary_bans.each do |ban|
         @output_file.puts("    <li>#{ban}</li>")
       end
-      @output_file.puts("  </ul>")
+      @output_file.puts("  </ul></li>")
     end
 
     @output_file.puts("  <li>Warnings: #{warnings.length}</li>")
-    if (@privacy < 2 and permanent_bans.length > 0)
-      @output_file.puts("  <ul>")
+    if (@privacy < 2 and warnings.length > 0)
+      @output_file.puts("  <li><ul>")
       warnings.each do |warn|
         @output_file.puts("    <li>#{warn}</li>")
       end
-      @output_file.puts("  </ul>")
+      @output_file.puts("  </ul></li>")
     end
     @output_file.puts("</ul>")
   end
