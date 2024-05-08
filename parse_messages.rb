@@ -8,6 +8,9 @@ require './lib/reportmessagedatabase'
 
 #Submitted on: 07/24/2023 at 09:05 PM UTC      
 
+PRIVACY_FOR_REPORTERS = 1
+PRIVACY_FOR_REPORTED  = 2
+
 opts = GetoptLong.new(
   [ '--input-directory', '-i', GetoptLong::REQUIRED_ARGUMENT ],
   [ '--privacy', '-p', GetoptLong::REQUIRED_ARGUMENT],
@@ -57,7 +60,7 @@ i = 1
 if (options.key?(:input_directory) and options[:input_directory] != '') 
   Find.find(options[:input_directory]) do |path|
     if (FileTest.file?(path) and path =~ /messages.csv/)
-      if (options[:privacy] > 0)
+      if ((options[:privacy] & PRIVACY_FOR_REPORTERS) > 0)
         puts "Reading CSV"
       else
         puts "Reading CSV: #{path}"
@@ -67,7 +70,6 @@ if (options.key?(:input_directory) and options[:input_directory] != '')
       messages.each do |m|
         if (ReportMessage.report_message?(m))
           rm = ReportMessage.new(m)
-          #puts "#{i}: #{rm.to_s}"
           db.save(rm)
           i += 1
           if i % 100 == 0
@@ -99,6 +101,8 @@ if (options[:run_reports] == :true)
     #db.print_username_stats
     db.print_time_stats
     #db.print_subreddit_details
-    db.print_reporter_stats
+    if not ((options[:privacy] & PRIVACY_FOR_REPORTERS) > 0) 
+      db.print_reporter_stats
+    end
   end
 end

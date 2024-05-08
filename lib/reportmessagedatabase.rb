@@ -2,6 +2,7 @@ require 'sqlite3'
 require 'digest'
 require './lib/reportmessage'
 require './lib/reportformattertxt'
+require './lib/reportformatterhtml'
 
 class ReportMessageDatabase
 
@@ -383,13 +384,35 @@ class ReportMessageDatabase
 
     if (output_format == 'txt')
       reportformatter = ReportFormatterTXT.new(privacy: privacy, output_file: output_file)
+    elsif (output_format == 'html')
+      reportformatter = ReportFormatterHTML.new(privacy: privacy, output_file: output_file)
     else
       puts "Unknown format '#{output_format}'"
     end
 
     reportformatter.print_global_header
-    reportformatter.print_summary_stats
+
+    reportformatter.print_summary_header
+
+    #
+    # Get global stats
+    #
+    stats = {}
+
+    #
+    # Posts
+    #
+    posts_statement = @db.prepare 'select count(*)
+                                      from reportmessages
+                                    where reported_content_type = \'post\''
+    posts = posts_statement.execute
+    stats[:reported_posts] = posts.next[0]
+    posts_statement.close
+
+    reportformatter.print_summary_stats(stats)
+    reportformatter.print_summary_footer
     
+    reportformatter.print_subreddit_header
     #
     # Loop through all distinct subs
     #
@@ -402,7 +425,7 @@ class ReportMessageDatabase
       stats[:name] = row[0]
 
       #
-      # Get reports for this sub
+      # Get stats for this sub
       #
 
       #
@@ -498,6 +521,8 @@ class ReportMessageDatabase
       reportformatter.print_stats_for_sub(stats)
     end
     statement.close
+
+    reportformatter.print_subreddit_footer
 
     reportformatter.print_global_footer
   end
