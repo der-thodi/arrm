@@ -1,7 +1,7 @@
 require 'sqlite3'
 require 'digest'
 require './lib/reportmessage'
-require './lib/reportformattertxt'
+require './lib/reportformattermd'
 require './lib/reportformatterhtml'
 
 class ReportMessageDatabase
@@ -375,15 +375,15 @@ class ReportMessageDatabase
   end
 
 
-  def run_file_report(privacy: 0, output_file: "output.txt")
+  def run_file_report(privacy: 0, output_file: "output.md")
     output_format = File.extname(output_file).downcase
     output_format.slice! "."
     puts "Writing report in '#{output_format}' format to '#{output_file}'"
 
     reportformatter = nil
 
-    if (output_format == 'txt')
-      reportformatter = ReportFormatterTXT.new(privacy: privacy, output_file: output_file)
+    if (output_format == 'md')
+      reportformatter = ReportFormatterMD.new(privacy: privacy, output_file: output_file)
     elsif (output_format == 'html')
       reportformatter = ReportFormatterHTML.new(privacy: privacy, output_file: output_file)
     else
@@ -403,15 +403,79 @@ class ReportMessageDatabase
     # Posts
     #
     posts_statement = @db.prepare 'select count(*)
-                                      from reportmessages
+                                     from reportmessages
                                     where reported_content_type = \'post\''
     posts = posts_statement.execute
     stats[:reported_posts] = posts.next[0]
     posts_statement.close
 
+    #
+    # Comments
+    #
+    comments_statement = @db.prepare 'select count(*)
+                                        from reportmessages
+                                       where reported_content_type = \'comment\''
+    comments = comments_statement.execute
+    stats[:reported_comments] = comments.next[0]
+    comments_statement.close
+
+    #
+    # Violations
+    #
+    violations_statement = @db.prepare 'select count(*)
+                                          from reportmessages
+                                         where violation = \'yes\''
+    violations = violations_statement.execute
+    stats[:violations] = violations.next[0]
+    violations_statement.close
+
+    #
+    # No Violations
+    #
+    no_violations_statement = @db.prepare 'select count(*)
+                                             from reportmessages
+                                            where violation = \'no\''
+    no_violations = no_violations_statement.execute
+    stats[:no_violations] = no_violations.next[0]
+    no_violations_statement.close
+
+    #
+    # Permanent bans
+    #
+    permanent_bans_statement = @db.prepare 'select count(distinct reported_account)
+                                              from reportmessages
+                                              where user_action like \'%permanent%\''
+    permanent_bans = permanent_bans_statement.execute
+    stats[:permanent_bans] = permanent_bans.next[0]
+    permanent_bans_statement.close
+
+    #
+    # Termporary bans
+    #
+    temporary_bans_statement = @db.prepare 'select count(distinct reported_account)
+                                              from reportmessages
+                                              where user_action like \'%tempo%\''
+    temporary_bans = temporary_bans_statement.execute
+    stats[:temporary_bans] = temporary_bans.next[0]
+    temporary_bans_statement.close
+
+    #
+    # Warnings
+    #
+    warnings_statement = @db.prepare 'select count(distinct reported_account)
+                                        from reportmessages
+                                        where user_action like \'%warning%\''
+    warnings = warnings_statement.execute
+    stats[:warnings] = warnings.next[0]
+    warnings_statement.close
+
     reportformatter.print_summary_stats(stats)
     reportformatter.print_summary_footer
-    
+
+    reportformatter.print_violation_breakdown_header
+    reportformatter.print_violation_breakdown
+    reportformatter.print_violation_breakdown_footer  
+
     reportformatter.print_subreddit_header
     #
     # Loop through all distinct subs
@@ -479,7 +543,8 @@ class ReportMessageDatabase
       permanent_bans_statement = @db.prepare 'select distinct reported_account
                                                 from reportmessages
                                                where user_action like \'%permanent%\'
-                                                 and subreddit = ?'
+                                                 and subreddit = ?
+                                               order by reported_account asc'
       permanent_bans_statement.bind_params stats[:name]
       permanent_bans = permanent_bans_statement.execute
       stats[:permanent_bans] = []
@@ -494,7 +559,8 @@ class ReportMessageDatabase
       temporary_bans_statement = @db.prepare 'select distinct reported_account
                                                 from reportmessages
                                                where user_action like \'%tempo%\'
-                                                 and subreddit = ?'
+                                                 and subreddit = ?
+                                               order by reported_account asc'
       temporary_bans_statement.bind_params stats[:name]
       temporary_bans = temporary_bans_statement.execute
       stats[:temporary_bans] = []
@@ -509,7 +575,8 @@ class ReportMessageDatabase
       warnings_statement = @db.prepare 'select distinct reported_account
                                           from reportmessages
                                          where user_action like \'%warning%\'
-                                           and subreddit = ?'
+                                           and subreddit = ?
+                                         order by reported_account asc'
       warnings_statement.bind_params stats[:name]
       warnings = warnings_statement.execute
       stats[:warnings] = []
