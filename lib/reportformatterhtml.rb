@@ -32,21 +32,32 @@ class ReportFormatterHTML
                           reported_comments: 0,
                           violations: 0,
                           no_violations: 0,
-                          permanent_bans: [],
-                          temporary_bans: [],
-                          warnings: [])
+                          permanent_bans: 0,
+                          temporary_bans: 0,
+                          warnings: 0)
     @output_file.puts("<ul>")
     @output_file.puts("  <li>Reported posts: #{reported_posts}</li>")
     @output_file.puts("  <li>Reported comments: #{reported_comments}</li>")
     @output_file.puts("  <li>Confirmed violations: #{violations} (#{get_percentage(part: violations, total: violations + no_violations)}%)</li>")
-    @output_file.puts("  <li>Permanent bans: #{permanent_bans.length}</li>")
-    @output_file.puts("  <li>Temporary bans: #{temporary_bans.length}</li>")
-    @output_file.puts("  <li>Warnings: #{warnings.length}</li>")
+    @output_file.puts("  <li>Permanent bans: #{permanent_bans}</li>")
+    @output_file.puts("  <li>Temporary bans: #{temporary_bans}</li>")
+    @output_file.puts("  <li>Warnings: #{warnings}</li>")
     @output_file.puts("</ul>")
   end
 
+  def print_violation_breakdown_header
+    @output_file.puts("<h1>Violation Breakdown</h1>")
+  end
+
+  def print_violation_breakdown
+  end
+
+  def print_violation_breakdown_footer
+  end
+
+
   def print_subreddit_header
-    @output_file.puts("<h1>Subreddit breakdown</h1>");
+    @output_file.puts("<h1>Subreddit Breakdown</h1>");
   end
 
   def print_subreddit_footer
