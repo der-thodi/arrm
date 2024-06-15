@@ -1,3 +1,4 @@
 *.sqlite3
 report*.txt
 report*.html
+report*.md
