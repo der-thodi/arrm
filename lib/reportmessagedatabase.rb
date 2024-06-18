@@ -420,6 +420,16 @@ class ReportMessageDatabase
     comments_statement.close
 
     #
+    # First reports
+    #
+    first_reports_statement = @db.prepare 'select count(*)
+                                             from reportmessages
+                                             where first_report = \'yes\''
+    first_reports = first_reports_statement.execute
+    stats[:first_reports] = first_reports.next[0]
+    first_reports_statement.close
+
+    #
     # Violations
     #
     violations_statement = @db.prepare 'select count(*)

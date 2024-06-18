@@ -24,15 +24,18 @@ class ReportFormatterMD
                           reported_comments: 0,
                           violations: 0,
                           no_violations: 0,
+                          first_reports: 0,
                           permanent_bans: 0,
                           temporary_bans: 0,
                           warnings: 0)
-    @output_file.puts(" * Reported posts: #{reported_posts}")
-    @output_file.puts(" * Reported comments: #{reported_comments}")
+    @output_file.puts(" * Total reports: #{reported_posts + reported_comments}")
+    @output_file.puts("   * Reported posts: #{reported_posts} (#{get_percentage(part: reported_posts, total: reported_posts + reported_comments)}% of all reports)")
+    @output_file.puts("   * Reported comments: #{reported_comments} (#{get_percentage(part: reported_comments, total: reported_posts + reported_comments)}% of all reports)")
     @output_file.puts(" * Confirmed violations: #{violations} (#{get_percentage(part: violations, total: violations + no_violations)}%)")
-    @output_file.puts(" * Permanent bans: #{permanent_bans}")
-    @output_file.puts(" * Temporary bans: #{temporary_bans}")
-    @output_file.puts(" * Warnings: #{warnings}")
+    @output_file.puts(" * First reports: #{first_reports} (#{get_percentage(part: first_reports, total: reported_posts + reported_comments)}% of all reports)")
+    @output_file.puts("   * Permanent bans: #{permanent_bans}")
+    @output_file.puts("   * Temporary bans: #{temporary_bans}")
+    @output_file.puts("   * Warnings: #{warnings}")
   end
 
   def print_violation_breakdown_header
