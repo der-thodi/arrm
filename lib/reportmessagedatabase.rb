@@ -382,7 +382,7 @@ class ReportMessageDatabase
 
     reportformatter = nil
 
-    if (output_format == 'md')
+    if (output_format == 'md' or output_format == 'txt')
       reportformatter = ReportFormatterMD.new(privacy: privacy, output_file: output_file)
     elsif (output_format == 'html')
       reportformatter = ReportFormatterHTML.new(privacy: privacy, output_file: output_file)
