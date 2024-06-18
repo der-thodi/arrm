@@ -176,7 +176,7 @@ class ReportMessage
     if (match = /User ([^ ]+) was (.+)/.match(@body))
       ret = match[2]
     end
-  
+
     ret.strip!
 
     return ret
