@@ -67,6 +67,7 @@ if (options.key?(:input_directory) and options[:input_directory] != '')
       end
       messages = CSV.read(path, headers: true)
 
+      #i = 1
       messages.each do |m|
         if (ReportMessage.report_message?(m))
           rm = ReportMessage.new(m)
