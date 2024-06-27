@@ -14,7 +14,7 @@ PRIVACY_FOR_REPORTED  = 2
 opts = GetoptLong.new(
   [ '--input-directory', '-i', GetoptLong::REQUIRED_ARGUMENT ],
   [ '--privacy', '-p', GetoptLong::REQUIRED_ARGUMENT],
-  [ '--run-reports', '-r', GetoptLong::REQUIRED_ARGUMENT],
+  [ '--run-reports', '-r', GetoptLong::NO_ARGUMENT],
   [ '--output-file', '-o', GetoptLong::REQUIRED_ARGUMENT],
   [ '--count-per-file', '-c', GetoptLong::NO_ARGUMENT]
 )
@@ -29,11 +29,11 @@ begin
   #
   options[:privacy] = 0
 
-  options[:run_reports] = :true
+  options[:run_reports] = false
 
   options[:output_file] = ""
 
-  options[:count_per_file] = :false
+  options[:count_per_file] = false
 
   opts.each do |opt, arg|
     case opt
@@ -42,11 +42,11 @@ begin
     when '--privacy'
       options[:privacy] = arg.to_i
     when '--run-reports'
-      options[:run_reports] = (arg =~ /^no$/ or arg =~ /^false$/ or arg =~ /^0$/) ? :false : :true
+      options[:run_reports] = true
     when '--output-file'
       options[:output_file] = arg
     when '--count-per-file'
-      options[:count_per_file] = :true
+      options[:count_per_file] = true
     else
       puts "Unknown option #{opt}"
       exit 1
@@ -94,7 +94,7 @@ else
   puts "No input files"
 end
 
-if (options[:run_reports] == :true)
+if (options[:run_reports])
   if (options[:output_file] != "")
     db.run_file_report(privacy: options[:privacy], output_file: options[:output_file])
   else
