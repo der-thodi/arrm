@@ -15,7 +15,8 @@ opts = GetoptLong.new(
   [ '--input-directory', '-i', GetoptLong::REQUIRED_ARGUMENT ],
   [ '--privacy', '-p', GetoptLong::REQUIRED_ARGUMENT],
   [ '--run-reports', '-r', GetoptLong::REQUIRED_ARGUMENT],
-  [ '--output-file', '-o', GetoptLong::REQUIRED_ARGUMENT]
+  [ '--output-file', '-o', GetoptLong::REQUIRED_ARGUMENT],
+  [ '--count-per-file', '-c', GetoptLong::REQUIRED_ARGUMENT]
 )
 
 begin
@@ -32,6 +33,8 @@ begin
 
   options[:output_file] = ""
 
+  options[:count_per_file] = :false
+
   opts.each do |opt, arg|
     case opt
     when '--input-directory'
@@ -42,6 +45,8 @@ begin
       options[:run_reports] = (arg =~ /^no$/ or arg =~ /^false$/ or arg =~ /^0$/) ? :false : :true
     when '--output-file'
       options[:output_file] = arg
+    when '--count-per-file'
+      options[:count_per_file] = :true
     else
       puts "Unknown option #{opt}"
       exit 1
@@ -67,7 +72,9 @@ if (options.key?(:input_directory) and options[:input_directory] != '')
       end
       messages = CSV.read(path, headers: true)
 
-      #i = 1
+      if (options[:count_per_file])
+        i = 1
+      end
       messages.each do |m|
         if (ReportMessage.report_message?(m))
           rm = ReportMessage.new(m)
