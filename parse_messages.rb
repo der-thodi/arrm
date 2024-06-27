@@ -16,7 +16,7 @@ opts = GetoptLong.new(
   [ '--privacy', '-p', GetoptLong::REQUIRED_ARGUMENT],
   [ '--run-reports', '-r', GetoptLong::REQUIRED_ARGUMENT],
   [ '--output-file', '-o', GetoptLong::REQUIRED_ARGUMENT],
-  [ '--count-per-file', '-c', GetoptLong::REQUIRED_ARGUMENT]
+  [ '--count-per-file', '-c', GetoptLong::NO_ARGUMENT]
 )
 
 begin
