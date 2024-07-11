@@ -20,6 +20,18 @@ class ReportMessage
     @first_report
   end
   
+  def subreddit_is_account_profile?
+    if @subreddit_is_account_profile == nil
+      subname = subreddit
+
+      @subreddit_is_account_profile = 'no'
+      if (subname.start_with?('u_'))
+        @subreddit_is_account_profile = 'yes'
+      end
+    end
+  
+    @subreddit_is_account_profile
+  end
   
   def reported_account
     if @reported_account == nil
