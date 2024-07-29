@@ -8,6 +8,8 @@ Download a copy of your Reddit data from https://www.reddit.com/settings/data-re
 
 ``./parse_messages.rb --input-directory <path where CSV files will be searched>``
 
+
+
 ## Tested with
  - Ruby 2.3.7
  - sqlite3 1.3.11

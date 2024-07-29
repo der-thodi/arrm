@@ -8,32 +8,24 @@ require './lib/reportmessagedatabase'
 
 #Submitted on: 07/24/2023 at 09:05 PM UTC      
 
-PRIVACY_FOR_REPORTERS = 1
-PRIVACY_FOR_REPORTED  = 2
-
 opts = GetoptLong.new(
   [ '--input-directory', '-i', GetoptLong::REQUIRED_ARGUMENT ],
-  [ '--privacy', '-p', GetoptLong::REQUIRED_ARGUMENT],
-  [ '--run-reports', '-r', GetoptLong::NO_ARGUMENT],
-  [ '--output-file', '-o', GetoptLong::REQUIRED_ARGUMENT],
-  [ '--count-per-file', '-c', GetoptLong::NO_ARGUMENT]
+  [ '--run-reports', '-r', GetoptLong::NO_ARGUMENT ],
+  [ '--output-file', '-o', GetoptLong::REQUIRED_ARGUMENT ],
+  [ '--privacy-for-offenders', '-p', GetoptLong::NO_ARGUMENT ],
+  [ '--privacy-for-reporters', '-P', GetoptLong::NO_ARGUMENT ],
 )
 
 begin
   options = {}
-  #
-  # privacy:
-  #   0: none
-  #   1: privacy for reporter accounts
-  #   2: privacy for reported accounts
-  #
-  options[:privacy] = 0
 
   options[:run_reports] = false
 
   options[:output_file] = ""
 
-  options[:count_per_file] = false
+  options[:privacy_for_offenders] = false
+
+  options[:privacy_for_reporters] = false
 
   opts.each do |opt, arg|
     case opt
@@ -45,8 +37,6 @@ begin
       options[:run_reports] = true
     when '--output-file'
       options[:output_file] = arg
-    when '--count-per-file'
-      options[:count_per_file] = true
     else
       puts "Unknown option #{opt}"
       exit 1
@@ -61,33 +51,33 @@ end
 puts options
 
 db = ReportMessageDatabase.new()
-i = 1
-if (options.key?(:input_directory) and options[:input_directory] != '') 
+if (options.key?(:input_directory) and options[:input_directory] != '')
   Find.find(options[:input_directory]) do |path|
-    if (FileTest.file?(path) and path =~ /messages.csv/)
-      if ((options[:privacy] & PRIVACY_FOR_REPORTERS) > 0)
-        puts "Reading CSV"
-      else
-        puts "Reading CSV: #{path}"
-      end
-      messages = CSV.read(path, headers: true)
+    if (FileTest.file?(path) and path =~ /\/messages.csv/)
+      new_messages = 0
+      old_messages = 0
 
-      if (options[:count_per_file])
-        i = 1
+      if (options[:privacy_for_reporters])
+        print "Reading CSV "
+      else
+        print "Reading CSV: #{path} "
       end
+      messages = CSV.read(path, headers: true, encoding:'utf-8')
+
       messages.each do |m|
         if (ReportMessage.report_message?(m))
           rm = ReportMessage.new(m)
-          db.save(rm)
-          i += 1
-          if i % 100 == 0
-            print "...#{i}"
+          ret = db.save(rm)
+          if (ret)
+            new_messages = new_messages + 1
+          else
+            old_messages = old_messages + 1
           end
         else
           #puts " Ignoring message #{i}"
         end
       end
-      puts "...#{i}"
+      puts "(#{new_messages} new, #{old_messages} old)"
     end
   end
 else
@@ -96,7 +86,7 @@ end
 
 if (options[:run_reports])
   if (options[:output_file] != "")
-    db.run_file_report(privacy: options[:privacy], output_file: options[:output_file])
+    db.run_file_report(options)
   else
     # basic
     #db.list_all
@@ -109,7 +99,7 @@ if (options[:run_reports])
     #db.print_username_stats
     db.print_time_stats
     #db.print_subreddit_details
-    if not ((options[:privacy] & PRIVACY_FOR_REPORTERS) > 0) 
+    if not (options[:privacy_for_reporters]) 
       db.print_reporter_stats
     end
   end

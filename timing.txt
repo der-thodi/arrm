@@ -1,0 +1,12 @@
+Raspberry Pi:
+  24340 meesages:
+    real	49m8.230s
+    user	16m47.784s
+    sys	1m27.637s
+
+MacBook Pro:
+  24340 meesages:
+    real	3m25.164s
+    user	2m30.539s
+    sys	0m20.828s
+

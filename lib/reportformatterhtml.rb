@@ -1,9 +1,10 @@
 class ReportFormatterHTML
 
-  def initialize(privacy: 0, output_file: "output.html")
-    @privacy = privacy
-    @output_file = File.open(output_file, "w")
-    puts "New html formatter. Privacy: #{@privacy}, Output file: '#{output_file}'"
+  def initialize(options: {})
+    @privacy_for_reporters = options[:privacy_for_reporters]
+    @privacy_for_offenders = options[:privacy_for_offenders]    
+    @output_file = File.open(options[:output_file], "w")
+    puts "New html formatter. Options: #{options}"
   end
 
   def print_global_header
@@ -77,7 +78,7 @@ class ReportFormatterHTML
     @output_file.puts("  <li>Reported comments: #{reported_comments}</li>")
     @output_file.puts("  <li>Confirmed violations: #{violations} (#{get_percentage(part: violations, total: violations + no_violations)}%)</li>")
     @output_file.puts("  <li>Permanent bans: #{permanent_bans.length}</li>")
-    if (@privacy < 2 and permanent_bans.length > 0)
+    if (!(@privacy_for_offenders) and permanent_bans.length > 0)
       @output_file.puts("  <li><ul>")
       permanent_bans.each do |ban|
         @output_file.puts("    <li>#{ban}</li>")
@@ -86,7 +87,7 @@ class ReportFormatterHTML
     end
 
     @output_file.puts("  <li>Temporary bans: #{temporary_bans.length}</li>")
-    if (@privacy < 2 and temporary_bans.length > 0)
+    if (!(@privacy_for_offenders) and temporary_bans.length > 0)
       @output_file.puts("  <li><ul>")
       temporary_bans.each do |ban|
         @output_file.puts("    <li>#{ban}</li>")
@@ -95,7 +96,7 @@ class ReportFormatterHTML
     end
 
     @output_file.puts("  <li>Warnings: #{warnings.length}</li>")
-    if (@privacy < 2 and warnings.length > 0)
+    if (!(@privacy_for_offenders) and warnings.length > 0)
       @output_file.puts("  <li><ul>")
       warnings.each do |warn|
         @output_file.puts("    <li>#{warn}</li>")

@@ -106,6 +106,8 @@ class ReportMessageDatabase
   end
 
   def save(report_message)
+    ret = true
+
     if is_new?(report_message)
       #print "insert id "
       statement = @db.prepare 'insert into reportmessages
@@ -127,6 +129,7 @@ class ReportMessageDatabase
                                 id)
                                 values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
     else
+      ret = false
       #print "update id "
       statement = @db.prepare 'update reportmessages
                               set reported_account = ?,
@@ -165,6 +168,8 @@ class ReportMessageDatabase
                           report_message.id
     rows = statement.execute
     statement.close
+
+    ret
   end
 
 
@@ -406,7 +411,9 @@ class ReportMessageDatabase
   end
 
 
-  def run_file_report(privacy: 0, output_file: "output.md")
+  def run_file_report(options: {})
+    output_file = options[:output_file]
+
     output_format = File.extname(output_file).downcase
     output_format.slice! "."
     puts "Writing report in '#{output_format}' format to '#{output_file}'"
@@ -414,9 +421,9 @@ class ReportMessageDatabase
     reportformatter = nil
 
     if (output_format == 'md' or output_format == 'txt')
-      reportformatter = ReportFormatterMD.new(privacy: privacy, output_file: output_file)
+      reportformatter = ReportFormatterMD.new(options)
     elsif (output_format == 'html')
-      reportformatter = ReportFormatterHTML.new(privacy: privacy, output_file: output_file)
+      reportformatter = ReportFormatterHTML.new(options)
     else
       puts "Unknown format '#{output_format}'"
     end

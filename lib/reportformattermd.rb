@@ -1,8 +1,9 @@
 class ReportFormatterMD
 
-  def initialize(privacy: 0, output_file: "output.md")
-    @privacy = privacy
-    @output_file = File.open(output_file, "w")
+  def initialize(options: {})
+    @privacy_for_reporters = options[:privacy_for_reporters]
+    @privacy_for_offenders = options[:privacy_for_offenders]
+    @output_file = File.open(options[:output_file], "w")
     puts "New Markdown formatter. Privacy: #{@privacy}, Output file: '#{output_file}'"
   end
 
@@ -68,7 +69,7 @@ class ReportFormatterMD
     @output_file.puts(" * Reported comments: #{reported_comments}")
     @output_file.puts(" * Confirmed violations: #{violations} (#{get_percentage(part: violations, total: violations + no_violations)}%)")
     @output_file.puts(" * Permanent bans: #{permanent_bans.length}")
-    if (@privacy < 2)
+    if (!(@privacy_for_offenders))
       i = 1
       permanent_bans.each do |ban|
         @output_file.puts("    #{i}. #{ban}")
@@ -77,7 +78,7 @@ class ReportFormatterMD
     end
 
     @output_file.puts(" * Temporary bans: #{temporary_bans.length}")
-    if (@privacy < 2)
+    if (!(@privacy_for_offenders))
       i = 1
       temporary_bans.each do |ban|
         @output_file.puts("    #{i}. #{ban}")
@@ -86,7 +87,7 @@ class ReportFormatterMD
     end
 
     @output_file.puts(" * Warnings: #{warnings.length}")
-    if (@privacy < 2)
+    if (!(@privacy_for_offenders))
       i = 1
       warnings.each do |warn|
         @output_file.puts("    #{i}. #{warn}")
