@@ -1,6 +1,6 @@
 class ReportFormatterHTML
 
-  def initialize(options: {})
+  def initialize(options)
     @privacy_for_reporters = options[:privacy_for_reporters]
     @privacy_for_offenders = options[:privacy_for_offenders]    
     @output_file = File.open(options[:output_file], "w")

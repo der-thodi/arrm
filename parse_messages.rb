@@ -52,33 +52,45 @@ puts options
 
 db = ReportMessageDatabase.new()
 if (options.key?(:input_directory) and options[:input_directory] != '')
+  total_messages = 0
+  start_time = Time.new()
   Find.find(options[:input_directory]) do |path|
     if (FileTest.file?(path) and path =~ /\/messages.csv/)
-      new_messages = 0
-      old_messages = 0
+      new_reports = 0
+      old_reports = 0
+      other_messages = 0
 
       if (options[:privacy_for_reporters])
         print "Reading CSV "
       else
         print "Reading CSV: #{path} "
       end
-      messages = CSV.read(path, headers: true, encoding:'utf-8')
+      messages = CSV.read(path, headers: true, encoding: 'utf-8')
 
       messages.each do |m|
         if (ReportMessage.report_message?(m))
           rm = ReportMessage.new(m)
           ret = db.save(rm)
           if (ret)
-            new_messages = new_messages + 1
+            new_reports = new_reports + 1
           else
-            old_messages = old_messages + 1
+            old_reports = old_reports + 1
           end
         else
-          #puts " Ignoring message #{i}"
+          other_messages = other_messages + 1
         end
       end
-      puts "(#{new_messages} new, #{old_messages} old)"
+      puts "(#{new_reports + old_reports + other_messages} total, #{new_reports} new, #{old_reports} old, #{other_messages} other messages)"
+      total_messages = total_messages + new_reports + old_reports + other_messages
     end
+  end
+  end_time = Time.new()
+  diff = end_time.to_i - start_time.to_i
+  print "#{total_messages} messages in #{diff} seconds"
+  if (diff > 0)
+    puts " ((#{total_messages / (diff * 1.0)).round(1)} messages/second)"
+  else
+    puts ""
   end
 else
   puts "No input files"

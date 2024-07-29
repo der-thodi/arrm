@@ -1,10 +1,14 @@
 class ReportFormatterMD
 
-  def initialize(options: {})
+  def initialize(options)
     @privacy_for_reporters = options[:privacy_for_reporters]
     @privacy_for_offenders = options[:privacy_for_offenders]
     @output_file = File.open(options[:output_file], "w")
-    puts "New Markdown formatter. Privacy: #{@privacy}, Output file: '#{output_file}'"
+    puts "New Markdown formatter. Options: #{options}'"
+  end
+
+  def escape_characters(str)
+    str.gsub /(\*|_|`)/, '\\\1'
   end
 
   def print_global_header
@@ -64,7 +68,7 @@ class ReportFormatterMD
                           permanent_bans: [],
                           temporary_bans: [],
                           warnings: [])
-    @output_file.puts("## Subreddit r/#{name}")
+    @output_file.puts("## Subreddit r/#{escape_characters(name)}")
     @output_file.puts(" * Reported posts: #{reported_posts}")
     @output_file.puts(" * Reported comments: #{reported_comments}")
     @output_file.puts(" * Confirmed violations: #{violations} (#{get_percentage(part: violations, total: violations + no_violations)}%)")
@@ -72,7 +76,7 @@ class ReportFormatterMD
     if (!(@privacy_for_offenders))
       i = 1
       permanent_bans.each do |ban|
-        @output_file.puts("    #{i}. #{ban}")
+        @output_file.puts("    #{i}. #{escape_characters(ban)}")
         i = i + 1
       end
     end
@@ -81,7 +85,7 @@ class ReportFormatterMD
     if (!(@privacy_for_offenders))
       i = 1
       temporary_bans.each do |ban|
-        @output_file.puts("    #{i}. #{ban}")
+        @output_file.puts("    #{i}. #{escape_characters(ban)}")
         i = i + 1
       end
     end
@@ -90,7 +94,7 @@ class ReportFormatterMD
     if (!(@privacy_for_offenders))
       i = 1
       warnings.each do |warn|
-        @output_file.puts("    #{i}. #{warn}")
+        @output_file.puts("    #{i}. #{escape_characters(warn)}")
         i = i + 1
       end
     end
