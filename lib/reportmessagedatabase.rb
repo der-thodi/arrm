@@ -3,6 +3,7 @@ require 'digest'
 require './lib/reportmessage'
 require './lib/reportformattermd'
 require './lib/reportformatterhtml'
+require './lib/reportformattertxt'
 
 class ReportMessageDatabase
 
@@ -411,7 +412,7 @@ class ReportMessageDatabase
   end
 
 
-  def run_file_report(options: {})
+  def run_file_report(options)
     output_file = options[:output_file]
 
     output_format = File.extname(output_file).downcase
@@ -420,7 +421,9 @@ class ReportMessageDatabase
 
     reportformatter = nil
 
-    if (output_format == 'md' or output_format == 'txt')
+    if (output_format == 'txt')
+      reportformatter = ReportFormatterTXT.new(options)
+    elsif (output_format == 'md')      
       reportformatter = ReportFormatterMD.new(options)
     elsif (output_format == 'html')
       reportformatter = ReportFormatterHTML.new(options)
