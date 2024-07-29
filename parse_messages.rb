@@ -88,7 +88,7 @@ if (options.key?(:input_directory) and options[:input_directory] != '')
   diff = end_time.to_i - start_time.to_i
   print "#{total_messages} messages in #{diff} seconds"
   if (diff > 0)
-    puts " ((#{total_messages / (diff * 1.0)).round(1)} messages/second)"
+    puts " (#{(total_messages / (diff * 1.0)).round(1)} messages/second)"
   else
     puts ""
   end
