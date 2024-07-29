@@ -8,7 +8,15 @@ Download a copy of your Reddit data from https://www.reddit.com/settings/data-re
 
 ``./parse_messages.rb --input-directory <path where CSV files will be searched>``
 
+## How to get a report
 
+``./parse_messages.rb --run-reports --output-file <output file>``
+
+The output format is automatically determined by the output file extension.
+Output file formats are:
+ - Markdown (extenion .md)
+ - HTML (extension .html)
+ - TXT (extension .txt)
 
 ## Tested with
  - Ruby 2.3.7
