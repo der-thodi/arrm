@@ -33,6 +33,7 @@ class ReportFormatterHTML
                           reported_comments: 0,
                           violations: 0,
                           no_violations: 0,
+                          first_reports: 0,
                           permanent_bans: 0,
                           temporary_bans: 0,
                           warnings: 0)
