@@ -65,12 +65,14 @@ class ReportFormatterMD
                           reported_comments: 0,
                           violations: 0,
                           no_violations: 0,
+                          first_reports: 0,
                           permanent_bans: [],
                           temporary_bans: [],
                           warnings: [])
     @output_file.puts("## Subreddit r/#{escape_characters(name)}")
     @output_file.puts(" * Reported posts: #{reported_posts}")
     @output_file.puts(" * Reported comments: #{reported_comments}")
+    @output_file.puts(" * First reports: #{first_reports}")
     @output_file.puts(" * Confirmed violations: #{violations} (#{get_percentage(part: violations, total: violations + no_violations)}%)")
     @output_file.puts(" * Permanent bans: #{permanent_bans.length}")
     if (!(@privacy_for_offenders))

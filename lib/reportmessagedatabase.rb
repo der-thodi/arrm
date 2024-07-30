@@ -429,6 +429,7 @@ class ReportMessageDatabase
       reportformatter = ReportFormatterHTML.new(options)
     else
       puts "Unknown format '#{output_format}'"
+      return
     end
 
     reportformatter.print_global_header
@@ -566,6 +567,18 @@ class ReportMessageDatabase
       comments = comments_statement.execute
       stats[:reported_comments] = comments.next[0]
       comments_statement.close
+
+      #
+      # First reports
+      #
+      first_reports_statement = @db.prepare 'select count(*)
+                                              from reportmessages
+                                              where first_report = \'yes\'
+                                              and subreddit = ?'
+      first_reports_statement.bind_params stats[:name]
+      first_reports = first_reports_statement.execute
+      stats[:first_reports] = first_reports.next[0]
+      first_reports_statement.close
 
       #
       # Violation / No violation

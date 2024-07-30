@@ -70,6 +70,7 @@ class ReportFormatterHTML
                           reported_comments: 0,
                           violations: 0,
                           no_violations: 0,
+                          first_reports: 0,
                           permanent_bans: [],
                           temporary_bans: [],
                           warnings: [])
@@ -77,6 +78,7 @@ class ReportFormatterHTML
     @output_file.puts("<ul>")
     @output_file.puts("  <li>Reported posts: #{reported_posts}</li>")
     @output_file.puts("  <li>Reported comments: #{reported_comments}</li>")
+    @output_file.puts("  <li>First reports: #{first_reports}</li>")
     @output_file.puts("  <li>Confirmed violations: #{violations} (#{get_percentage(part: violations, total: violations + no_violations)}%)</li>")
     @output_file.puts("  <li>Permanent bans: #{permanent_bans.length}</li>")
     if (!(@privacy_for_offenders) and permanent_bans.length > 0)
