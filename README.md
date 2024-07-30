@@ -28,6 +28,7 @@ Output file formats are:
 - Raspberry Pi:
   - ruby 2.5.5p157 (2019-03-15 revision 67260) \[arm-linux-gnueabihf\]
   - sqlite3 1.3.11
+  - 8.5 messages/s
 
 ## Authors
 - github@thodi.de
