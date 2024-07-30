@@ -1,6 +1,4 @@
 *.sqlite3
-report*.txt
-report*.html
-report*.md
 test.rb
+output/
 TODO
