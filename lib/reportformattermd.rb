@@ -8,7 +8,7 @@ class ReportFormatterMD
   end
 
   def escape_characters(str)
-    str.gsub /(\*|_|`)/, '\\\1'
+    str.gsub(/(\*|_|`)/, '\\\\\\1')
   end
 
   def print_global_header
