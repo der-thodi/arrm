@@ -31,12 +31,14 @@ begin
     case opt
     when '--input-directory'
       options[:input_directory] = arg
-    when '--privacy'
-      options[:privacy] = arg.to_i
     when '--run-reports'
       options[:run_reports] = true
     when '--output-file'
       options[:output_file] = arg
+    when '--privacy-for-offenders'
+      options[:privacy_for_offenders] = true
+    when '--privacy-for-reporters'
+      options[:privacy_for_reporters] = true
     else
       puts "Unknown option #{opt}"
       exit 1
