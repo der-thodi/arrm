@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_09_24_185520) do
+ActiveRecord::Schema[7.2].define(version: 2024_09_25_125524) do
   create_table "report_messages", primary_key: "message_id", id: :string, force: :cascade do |t|
     t.string "recipient"
     t.datetime "report_timestamp"
@@ -27,6 +27,9 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_24_185520) do
     t.integer "subreddit_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "sender"
+    t.string "permalink"
+    t.text "body"
     t.index ["subreddit_id"], name: "index_report_messages_on_subreddit_id"
   end
 
