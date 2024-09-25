@@ -1,3 +1,8 @@
 # Analyze Reddit Report Messages
 
-Complete rewrite of the arrm app in Ruby On Rails
+## How to get up and running
+
+1. `bundle install`
+1. Clone this repository (https://github.com/der-thodi/arrm.git)
+1. `cd arrm`
+1. `bin/rails db:migrate`
