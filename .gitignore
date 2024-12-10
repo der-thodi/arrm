@@ -33,3 +33,7 @@
 
 # Ignore master key for decrypting credentials and more.
 /config/master.key
+
+/legacy/*.sqlite3
+/legacy/output
+.DS_Store
