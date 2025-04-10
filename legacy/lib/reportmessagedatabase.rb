@@ -301,26 +301,57 @@ class ReportMessageDatabase
 
     statement = @db.prepare 'select max(timestamp_difference), id
                                from reportmessages
-                              where has_two_timestamps = 1'
+                              where has_two_timestamps = 1
+                                and violation = \'yes\''
     rows = statement.execute
     row = rows.next
-    puts "Longest reaction time:  #{ReportMessage.format_processing_time(row[0])} (#{row[1]})"
+    puts "Longest reaction time (violation):  #{ReportMessage.format_processing_time(row[0])} (#{row[1]})"
     statement.close
 
     statement = @db.prepare 'select min(timestamp_difference), id
                                from reportmessages
-                              where has_two_timestamps = 1'
+                              where has_two_timestamps = 1
+                                and violation = \'yes\''
     rows = statement.execute
     row = rows.next
-    puts "Shortest reaction time: #{ReportMessage.format_processing_time(row[0])} (#{row[1]})"
+    puts "Shortest reaction time (violation): #{ReportMessage.format_processing_time(row[0])} (#{row[1]})"
     statement.close
 
     statement = @db.prepare 'select avg(timestamp_difference)
                                from reportmessages
-                              where has_two_timestamps = 1'
+                              where has_two_timestamps = 1
+                                and violation = \'yes\''
     rows = statement.execute
     row = rows.next
-    puts "Average reaction time:  #{ReportMessage.format_processing_time(row[0])}"
+    puts "Average reaction time (violation):  #{ReportMessage.format_processing_time(row[0])}"
+    statement.close
+
+
+    statement = @db.prepare 'select max(timestamp_difference), id
+                               from reportmessages
+                              where has_two_timestamps = 1
+                                and violation = \'no\''
+    rows = statement.execute
+    row = rows.next
+    puts "Longest reaction time (no violation):  #{ReportMessage.format_processing_time(row[0])} (#{row[1]})"
+    statement.close
+
+    statement = @db.prepare 'select min(timestamp_difference), id
+                               from reportmessages
+                              where has_two_timestamps = 1
+                                and violation = \'no\''
+    rows = statement.execute
+    row = rows.next
+    puts "Shortest reaction time (no violation): #{ReportMessage.format_processing_time(row[0])} (#{row[1]})"
+    statement.close
+
+    statement = @db.prepare 'select avg(timestamp_difference)
+                               from reportmessages
+                              where has_two_timestamps = 1
+                                and violation = \'no\''
+    rows = statement.execute
+    row = rows.next
+    puts "Average reaction time (no violation):  #{ReportMessage.format_processing_time(row[0])}"
     statement.close
   end
 
