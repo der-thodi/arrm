@@ -6,7 +6,7 @@ class ReportMessage
 
   attr_reader :id, :recipient, :message_timestamp
 
-  def self.report_message?(message)
+  def self.report_message?(message, path)
     (message['subject'] == 'We Have Reviewed Your Report') and
     (message['body'].include?('submitting a report'))
   end
@@ -20,6 +20,7 @@ class ReportMessage
     @first_report
   end
   
+
   def subreddit_is_account_profile?
     if @subreddit_is_account_profile == nil
       subname = subreddit
@@ -33,6 +34,7 @@ class ReportMessage
     @subreddit_is_account_profile
   end
   
+
   def reported_account
     if @reported_account == nil
       @reported_account = 'unknown'
@@ -95,7 +97,21 @@ class ReportMessage
       date_string = "#{year}-#{month}-#{day} #{hour}:#{minute}:#{second} #{tz}"
 
       date = DateTime.parse(date_string)
-      ret = date.strftime('%s')   
+      ret = date.strftime('%s')
+    # 2025-05-03T07:04:35Z
+    elsif (match = /(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})Z/.match(date_string))
+      year = match[1]
+      month = match[2]
+      day = match[3]
+      hour = match[4]
+      minute = match[5]
+      second = match[6]
+      tz = match[7]
+
+      date_string = "#{year}-#{month}-#{day} #{hour}:#{minute}:#{second} #{tz}"
+
+      date = DateTime.parse(date_string)
+      ret = date.strftime('%s')
     end
 
     return ret
@@ -234,11 +250,29 @@ class ReportMessage
   end
 
 
-  def initialize(message_fields)
-    @id = message_fields['id']
-    @body = message_fields['body']
-    @recipient = message_fields['to']
-    @message_timestamp = parse_timestamp(message_fields['date'])
+  def initialize(message_fields, path)
+    @path = path
+    @version = if (path =~ /announcements.csv/) then 2 else 1 end
+
+    if (@version == 1)
+      @id = message_fields['id']
+      @body = message_fields['body']
+      @recipient = message_fields['to'].downcase
+      @message_timestamp = parse_timestamp(message_fields['date'])
+    elsif (@version == 2)
+      @id = message_fields['announcement_id']
+      @body = message_fields['body']
+
+      if (match = /\/export_([^_]+)_\d{8}\//.match(path))
+        @recipient = 'u/' + match[1].downcase
+      else
+        "unknown recipient in #{path}"
+        @recipient =  '?'
+      end
+      @message_timestamp = parse_timestamp(message_fields['sent_at'])
+    else
+      puts "Unknown version #{@version}"
+    end
   end
 
 
