@@ -264,7 +264,7 @@ class ReportMessage
       @body = message_fields['body']
 
       if (match = /\/export_([^_]+)_\d{8}\//.match(path))
-        @recipient = 'u/' + match[1].downcase
+        @recipient = '/u/' + match[1].downcase
       else
         "unknown recipient in #{path}"
         @recipient =  '?'
