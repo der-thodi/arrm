@@ -57,7 +57,7 @@ if (options.key?(:input_directory) and options[:input_directory] != '')
   total_messages = 0
   start_time = Time.new()
   Find.find(options[:input_directory]) do |path|
-    if (FileTest.file?(path) and path =~ /\/messages.csv/)
+    if (FileTest.file?(path) and (path =~ /\/messages.csv/ or path =~ /\/announcements.csv/))
       new_reports = 0
       old_reports = 0
       other_messages = 0
@@ -70,8 +70,8 @@ if (options.key?(:input_directory) and options[:input_directory] != '')
       messages = CSV.read(path, headers: true, encoding: 'utf-8')
 
       messages.each do |m|
-        if (ReportMessage.report_message?(m))
-          rm = ReportMessage.new(m)
+        if (ReportMessage.report_message?(m, path))
+          rm = ReportMessage.new(m, path)
           ret = db.save(rm)
           if (ret)
             new_reports = new_reports + 1
