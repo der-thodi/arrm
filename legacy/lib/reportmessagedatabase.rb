@@ -42,6 +42,7 @@ class ReportMessageDatabase
 
   DML_HASH = Digest::SHA256.hexdigest(TABLE_DML + VIEW_DML)
 
+
   def initialize()
     @db = SQLite3::Database.new 'reportmessages.sqlite3'
 
@@ -94,6 +95,7 @@ class ReportMessageDatabase
     end
   end
 
+  
   def is_new?(report_message)
     statement = @db.prepare 'select count(id)
                                from reportmessages
@@ -106,6 +108,7 @@ class ReportMessageDatabase
 
     result < 1
   end
+
 
   def save(report_message)
     ret = true
@@ -284,6 +287,7 @@ class ReportMessageDatabase
     puts "Total: #{comments + posts}"
   end
 
+
   def print_time_stats
     statement = @db.prepare 'select min(message_timestamp), id
                                from reportmessages'
@@ -403,6 +407,7 @@ class ReportMessageDatabase
   def print_subreddit_css
     
   end
+
 
   def print_reporter_stats
     puts "Reporter stats:"
@@ -694,6 +699,7 @@ class ReportMessageDatabase
     reportformatter.print_global_footer
   end
 
+
   def get_subreddits
     subreddits = []
 
@@ -709,6 +715,7 @@ class ReportMessageDatabase
 
     subreddits
   end
+
 
   def get_subreddit_status(subreddit)
     statement = @db.prepare 'select distinct subreddit_status
@@ -731,6 +738,7 @@ class ReportMessageDatabase
       '?'
     end
   end
+
 
   def set_subreddit_status(subreddit, status)
     statement = @db.prepare 'update reportmessages
